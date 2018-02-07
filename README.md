@@ -109,10 +109,10 @@ Dans le cas d'un frontend Javascript, il est tout-à-fait envisageable de fourni
 [
 	{
 		"first_name": "John",
-		"last_name": Doe",
+		"last_name": "Doe",
 		"url": "http://localhost:8000/media/doej.pdf"
 	},
-	...
+	"..."
 ]
 ```
 
