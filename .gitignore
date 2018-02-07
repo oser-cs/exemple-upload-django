@@ -1,0 +1,13 @@
+// Databases
+*.db
+*.sqlite3
+
+// OS files
+*.DS_Store
+
+// Caches and generated files
+*.pyc
+migrations/
+
+// Virtualenv
+env/

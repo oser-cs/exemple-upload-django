@@ -1,0 +1,13 @@
+{% extends "upload/base.html" %}
+{% load rest_framework %}
+
+{% block content %}
+<h1>Inscription au tutorat</h1>
+
+<!-- Use multipart/form-data encoding to allow sending files -->
+<form action="{% url 'registration-create' %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% render_form serializer template_pack='rest_framework/vertical' %}
+  <input type="submit" class="btn btn-primary" value="Envoyer">
+</form>
+{% endblock %}
