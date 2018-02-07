@@ -34,6 +34,8 @@ $ python manage.py migrate
 $ python manage.py runserver
 ```
 
+Le site sera accessible à l'adresse `http://localhost:8000`.
+
 ## Notes d'implémentation
 
 #### Stockage de fichiers uploadés dans Django : les médias
@@ -58,6 +60,7 @@ Dans un contexte de développement, on peut se permettre de servir les fichiers 
 
 ```python
 # uploadexample/urls.py
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
@@ -71,6 +74,7 @@ Sur le modèle, on utilise un champ `FileField` :
 
 ```python
 # upload/models.py
+
 class StudentRegistration(models.Model):
 	...
 	image_agreement = models.FileField("autorisation de droit à l'image")
