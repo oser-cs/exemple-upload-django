@@ -25,3 +25,6 @@ class StudentRegistration(models.Model):
         verbose_name = "dossier d'inscription"
         verbose_name_plural = "dossiers d'inscription"
         ordering = ('-submission_date',)
+
+    def __str__(self):
+        return '{} {}'.format(self.first_name, self.last_name)

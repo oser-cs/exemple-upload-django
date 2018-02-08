@@ -7,5 +7,5 @@ urlpatterns = [
     path('inscription', RegistrationCreate.as_view(),
          name='registration-create'),
     path('inscription/<int:pk>', RegistrationDelete.as_view(),
-         name='registration-delete')
+         name='registration-delete'),
 ]

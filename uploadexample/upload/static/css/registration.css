@@ -1,9 +1,19 @@
+@import url('https://fonts.googleapis.com/css?family=Nunito:400,700,900');
+@import url('https://fonts.googleapis.com/css?family=Raleway:400,700,900');
+
 body {
-  margin: 2em;
+  padding: 2em;
+  font-family: "Nunito", sans-serif;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Raleway", sans-serif;
+  font-weight: bolder;
+}
+
+
 .content {
-  margin: 0 auto;
+  margin: 2em auto;
   max-width: 500px;
 }
 
@@ -14,7 +24,12 @@ body {
 }
 
 .list li {
-  padding: .5em 1em;
+  padding: 1em;
   margin: 1em 0;
   background: #eee;
+  display: flex;
+}
+
+.list li .right {
+  margin-left: auto;
 }

@@ -1,0 +1,27 @@
+{% extends "upload/base.html" %}
+
+{% block content %}
+  <h1>Dossiers d'inscriptions</h1>
+
+  <a href="{% url 'registration-create' %}" class="btn btn-primary">Nouvelle inscription</a>
+
+  <ul class="list">
+    {% for registration in registrations  %}
+    <li>
+      <div>
+        <h4>{{ registration.first_name }}  {{ registration.last_name }}</h4>
+        <p class="text-muted">Soumis le {{ registration.submission_date }}</p>
+        <br/>
+        {% if registration.image_agreement %}
+          <a href="{{ registration.image_agreement.url }}">Droit à l'image</a>
+        {% endif %}
+      </div>
+      <div class="right">
+        <span class="pull-right">
+          <a class="btn btn-danger" href="{% url 'registration-delete' pk=registration.pk %}">Supprimer</a>
+        </span>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,48 +1,52 @@
-from django.shortcuts import redirect, get_object_or_404
+"""Regular Django views for a template-based frontend."""
+from django.urls import reverse_lazy
 from django.contrib import messages
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.renderers import TemplateHTMLRenderer
+from django.views.generic import ListView, CreateView, DeleteView
 
 from .models import StudentRegistration
-from .serializers import StudentRegistrationSerializer
 
 # Create your views here.
 
 
-class RegistrationCreate(APIView):
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'upload/registration_create.html'
+class RegistrationList(ListView):
+    """List of the registrations."""
 
-    def get(self, request):
-        registration = StudentRegistration()
-        serializer = StudentRegistrationSerializer(registration)
-        return Response({'serializer': serializer})
-
-    def post(self, request):
-        registration = StudentRegistration()
-        serializer = StudentRegistrationSerializer(
-            registration, data=request.data)
-        if not serializer.is_valid():
-            return Response({'serializer': serializer})
-        serializer.save()
-        messages.success(request, 'Inscription réussie')
-        return redirect('registration-list')
+    model = StudentRegistration
+    context_object_name = 'registrations'
 
 
-class RegistrationList(APIView):
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'upload/registration_list.html'
+class RegistrationCreate(CreateView):
+    """Create a new registration."""
 
-    def get(self, request):
-        queryset = StudentRegistration.objects.all()
-        return Response({'registrations': queryset})
+    model = StudentRegistration
+    fields = ('first_name', 'last_name', 'image_agreement')
+    success_url = reverse_lazy('registration-list')
+
+    def get_form(self, **kwargs):
+        """Customize style by adding Bootstrap classes."""
+        form = super().get_form(**kwargs)
+        classes = {
+            'first_name': 'form-control',
+            'last_name': 'form-control',
+            'image_agreement': 'form-control-file',
+        }
+        for field in form.fields:
+            form.fields[field].widget.attrs.update({'class': classes[field]})
+        return form
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Inscription réussie')
+        return response
 
 
-class RegistrationDelete(APIView):
+class RegistrationDelete(DeleteView):
+    """Delete a registration after confirmation."""
 
-    def get(self, request, pk):
-        registration = get_object_or_404(StudentRegistration, pk=pk)
-        registration.delete()
+    model = StudentRegistration
+    success_url = reverse_lazy('registration-list')
+
+    def delete(self, request, *args, **kwargs):
+        response = super().delete(request, *args, **kwargs)
         messages.success(request, 'Inscription supprimée')
-        return redirect('registration-list')
+        return response
