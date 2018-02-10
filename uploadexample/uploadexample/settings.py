@@ -26,7 +26,7 @@ SECRET_KEY = '!m(&*&!b(i7@!8gxg-7f*!&j9&s!3d=*)l^q-1-1$b7__c0g67'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['68556d9b.ngrok.io', 'localhost']
 
 
 MESSAGE_TAGS = {

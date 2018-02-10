@@ -11,3 +11,10 @@ migrations/
 
 // Virtualenv
 env/
+
+uploadexample/media
+uploadfront/
+
+# System Files
+.DS_Store
+Thumbs.db

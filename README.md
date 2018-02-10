@@ -10,6 +10,8 @@ Il s'agit d'une petite application CRD (Create, Read, Delete) autour d'un modèl
 
 Ce dernier champ est un champ de fichier où l'utilisateur doit fournir un fichier PDF. Pour tester l'application, on pourra utiliser `sample-data/doej.pdf`.
 
+On peut consulter la liste des dossiers, supprimer un dossier existant ou ajouter un nouveau dossier.
+
 ![](docsmedia/home.png)
 ![](docsmedia/form.png)
 
@@ -34,7 +36,17 @@ $ python manage.py migrate
 $ python manage.py runserver
 ```
 
-Le site sera accessible à l'adresse `http://localhost:8000`.
+Le site sera accessible à l'adresse `http://localhost:8000/`.
+
+### API
+
+Au cas où on voudrait utiliser cette app avec un frontend JS, une petite API REST a été implémentée à l'aide du Django REST Framework.
+
+Les ressources utiles sont dispos sur le serveur Django :
+
+- Browsable API : `http://localhost:8000/api/`
+- Documentation : `http://localhost:8000/api/docs/`
+
 
 ## Notes d'implémentation
 
@@ -56,7 +68,7 @@ Lorsqu'un fichier est uploadé via un formulaire, Django le placera dans le doss
 
 #### Service des médias en développement
 
-Dans un contexte de développement, on peut se permettre de servir les fichiers de médias et les fichiers statiques par Django. **Cette approche n'est pas efficace en production** : la solution à employer et alors de passer par un serveur web dédié aux fichiers statiques et aux médias, tel que nginx.
+Dans un contexte de développement, on peut se permettre de servir les fichiers de médias et les fichiers statiques par Django.
 
 ```python
 # uploadexample/urls.py
@@ -67,6 +79,8 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL,
                           document_root=settings.STATIC_ROOT)
 ```
+
+> **Cette approche n'est pas efficace en production** : la solution à employer et alors de passer par un serveur web dédié aux fichiers statiques et aux médias, tel que nginx.
 
 #### Écriture du modèle
 
@@ -81,11 +95,9 @@ class StudentRegistration(models.Model):
 	...
 ```
 
-Le *serializer* est tout-à-fait classique et est défini dans `upload/serializers.py`.
-
 #### Côté front
 
-La gestion du formulaire côté frontend est ici assurée par le Django REST Framework (rendu d'un *serializer* comme un formulaire). Ce n'est pas une nécessité et le front pourrait tout aussi bien se faire en JS (même si cet exemple ne dispose pas d'une API REST et serait donc à adapter).
+La gestion du formulaire côté frontend est ici assurée par le système de vues et de templates inclus Django (et ne passe pas par l'API).
 
 Les templates utilisés sont dans le dossier `upload/templates`. La chose la plus importante à noter concerne le `<form>` de création d'un nouveau dossier d'inscription : il doit définir `enctype="multipart/form-data` pour permettre la transmission de fichiers via la requête HTTP POST.
 
@@ -103,33 +115,35 @@ Django stocke les fichiers sur le serveur et expose l'URL du fichier via l'attri
 <a href="{{ registration.image_agreement.url }}">Droit à l'image</a>
 ```
 
-Dans le cas d'un frontend Javascript, il est tout-à-fait envisageable de fournir l'URL directement dans le JSON d'une requête de type `GET /api/registrations/`. Libre au front d'utiliser cette URL comme bon lui semble : lien vers le fichier ou affichage direct dans la page... La réponse JSON ressemblera typiquement à:
+L'API REST expose l'URL dans la réponse JSON. Un frontend JS pourrait alors utiliser cette URL pour, par exemple, l'associer à un lien ou afficher le PDF directement sur la page. La réponse JSON associée à `GET /registrations/` ressemble typiquement à :
 
 ```json
 [
-	{
-		"first_name": "John",
-		"last_name": "Doe",
-		"url": "http://localhost:8000/media/doej.pdf"
-	},
-	"..."
+    {
+        "id": 65,
+        "first_name": "John",
+        "last_name": "Doe",
+        "image_agreement": "http://localhost:8000/media/doej.pdf",
+        "submission_date": "2018-02-10"
+    },
+    ...
 ]
 ```
 
-## Gestion des fichiers inutilisés
+### Gestion des fichiers inutilisés
 
-Lorsqu'un modèle ayant un ou plusieurs champs `FileField` est supprimé, les fichiers correspondants ne sont pas supprimés du serveur, et deviennent inutilisés (c'est un choix délibéré du framework).
+Lorsqu'un modèle ayant un ou plusieurs champs `FileField` est supprimé, les fichiers correspondants deviennent "orphelins", c'est-à-dire qu'ils n'ont plus de références dans les modèles mais restent physiquement sur le serveur. Django choisit délibérément de ne pas supprimer automatiquement le fichier physique associé.
 
-On doit alors supprimer manuellement ou par une tâche périodique (job Cron) les fichiers inutilisés. Une commande de gestion a été définie dans cet exemple (définie dans `upload/management/commands/clean_media.py`) et s'utilise comme suit :
+On doit alors supprimer manuellement ou par une tâche périodique (job Cron) les fichiers inutilisés. Une commande de gestion a été définie dans cet exemple (voir `upload/management/commands/clean_media.py`) et s'utilise comme suit :
 
 ```sh
 $ python manage.py clean_media
 # Si des médias inutilisés sont détectés :
-Detected unused media files:
-	doej.pdf
-Deleted 1 unused media file(s).
+Unused media files were detected:
+doej.pdf
+Removed 1 unused media file(s).
 # Sinon :
 No unusued media files detected.
 ```
 
-Cette commande n'est pas spécifique à cette application et se contente de **supprimer tous les fichiers qui ne sont référencés par aucun modèle de la DB**.
+Cette commande n'est pas spécifique à cette application et se contente de **supprimer tous les fichiers qui ne sont référencés par aucun modèle de la DB**. On pourrait la réutiliser dans une autre application.

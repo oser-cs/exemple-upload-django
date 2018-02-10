@@ -76,7 +76,7 @@ class Command(BaseCommand):
 
         if deletables:
             unused = len(deletables)
-            self.stdout.write('Detected unused media files:')
+            self.stdout.write('Unused media files were detected:')
             self.stdout.write('\n'.join(f_ for f_ in deletables))
 
             for file_ in deletables:
@@ -89,7 +89,7 @@ class Command(BaseCommand):
                     if not os.listdir(os.path.join(relative_root, dir_)):
                         os.rmdir(os.path.join(relative_root, dir_))
             self.stdout.write(
-                self.style.SUCCESS('Deleted {} unused media file(s).'
+                self.style.SUCCESS('Removed {} unused media file(s).'
                                    .format(unused)))
         else:
             self.stdout.write(self.style.SUCCESS(
